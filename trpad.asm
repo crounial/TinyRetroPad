@@ -67,6 +67,12 @@ EM_SETEVENTMASK     equ WM_USER+69 ; Rich Edit: choose which notifications paren
 EM_SETTARGETDEVICE  equ WM_USER+72 ; Rich Edit: wrapping target width
 SCF_ALL             equ 00000004h  ; Rich Edit: apply format to all text
 ENM_CHANGE          equ 00000001h  ; Rich Edit: send EN_CHANGE notifications
+IFNDEF ENM_MOUSEEVENTS
+ENM_MOUSEEVENTS     equ 00020000h  ; Rich Edit: mouse → EN_MSGFILTER (context menu)
+ENDIF
+IFNDEF ENM_SELCHANGE
+ENM_SELCHANGE       equ 00080000h  ; Rich Edit: selection/caret EN_SELCHANGE
+ENDIF
 CFM_FACE            equ 20000000h  ; Rich Edit: use font face name
 MAX_CMD_PATH        equ 128        ; holds startup file path from dropped file
 MAX_TITLE           equ 128        ; holds window title text (file name and if dirty * )
