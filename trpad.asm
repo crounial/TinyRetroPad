@@ -2661,8 +2661,12 @@ ENDIF
         xor     eax, eax
         ret
 
-    ; check for WM_DESTROY
+    ; X / Alt+F4 / system Close: same as File→Exit (prompt if dirty)
     NotWMSize:
+        cmp     uMsg, WM_CLOSE
+        je      CmdFileExit
+
+        ; check for WM_DESTROY
         cmp     uMsg, WM_DESTROY
         jne     NotWMDestroy
 
