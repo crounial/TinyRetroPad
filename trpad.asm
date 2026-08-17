@@ -342,20 +342,6 @@ GoToTmpl LABEL DWORD
     dw  'O','K',0                  ; caption
     dw  0                          ; no creation data
 
-; Rich Edit default font face: Courier only
-RichFont    dd 92                   ; CHARFORMATW size
-            dd CFM_FACE             ; only set face name
-            dd 0                    ; no effects
-            dd 0                    ; no font size change
-            dd 0                    ; no offset change
-            dd 0                    ; no color change
-            db 0                    ; default charset
-            db 0                    ; default pitch/family
-            dw 'C','o','u','r','i','e','r',0
-            dw 24 dup (0)
-            dw 0                    ; CHARFORMATW padding
-
-
 ;----------------------------------------------;
 .CODE ; Here is where the program itself lives ;
 ;----------------------------------------------;
@@ -1684,14 +1670,6 @@ LoadStartupFile proc NEAR
     push    eax
     call    [_imp__SetWindowTextA@8]
 
-    ; set Rich Edit font on loaded text
-    push    OFFSET RichFont
-    push    SCF_ALL
-    push    EM_SETCHARFORMAT
-    mov     eax, hEdit
-    push    eax
-    call    [_imp__SendMessageA@16]
-
     ; free loaded file buffer
     FreeLoadBuffer:
         mov     eax, hMem
@@ -2053,15 +2031,6 @@ ENDIF
         push    eax
         call    [_imp__SendMessageA@16]
 
-        ;; we call this elsewhere anyway ;;
-	; set default Rich Edit font
-        ;push    OFFSET RichFont
-        ;push    0
-        ;push    EM_SETCHARFORMAT
-        ;mov     eax, hEdit
-        ;push    eax
-        ;call    [_imp__SendMessageA@16]
-	
         push    FALSE
         push    hWnd
         call    [_imp__GetSystemMenu@8]
