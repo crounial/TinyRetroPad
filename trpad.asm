@@ -33,6 +33,7 @@
 ; Added VIEW Status Bar (Ln/Col) - 2476 Bytes
 ; Added DIALOG based Feature - 2686 Bytes
 ; Added KEYBOARD accelerators - 2794 Bytes
+; Added wrap-off H-scroll + caret follow - 2846 Bytes
 ; Compiler directives and includes:
  
 .386                       ; Full 80386 instruction set and mode
@@ -65,6 +66,21 @@ EM_EXLIMITTEXT      equ WM_USER+53 ; Rich Edit: raise user editing text limit
 EM_SETCHARFORMAT    equ WM_USER+68 ; Rich Edit: set text format
 EM_SETEVENTMASK     equ WM_USER+69 ; Rich Edit: choose which notifications parent gets
 EM_SETTARGETDEVICE  equ WM_USER+72 ; Rich Edit: wrapping target width
+IFNDEF EM_SHOWSCROLLBAR
+EM_SHOWSCROLLBAR    equ WM_USER+96 ; Rich Edit: show/hide a scrollbar
+ENDIF
+IFNDEF SB_HORZ
+SB_HORZ             equ 0
+ENDIF
+IFNDEF EM_GETSCROLLPOS
+EM_GETSCROLLPOS     equ WM_USER+221 ; Rich Edit: get pixel scroll pos
+ENDIF
+IFNDEF EM_SETSCROLLPOS
+EM_SETSCROLLPOS     equ WM_USER+222 ; Rich Edit: set pixel scroll pos
+ENDIF
+IFNDEF EM_POSFROMCHAR
+EM_POSFROMCHAR      equ 0D6h       ; Rich Edit: char index → client POINT
+ENDIF
 SCF_ALL             equ 00000004h  ; Rich Edit: apply format to all text
 ENM_CHANGE          equ 00000001h  ; Rich Edit: send EN_CHANGE notifications
 IFNDEF ENM_MOUSEEVENTS
@@ -705,33 +721,32 @@ InsertTimeDate endp
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; toggle Rich Edit word-wrap mode             ;
+; wrap off: wide target + H-scrollbar         ;
+; wrap on:  window-width wrap, hide H-bar     ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ToggleWrap proc NEAR
-    cmp     fWrap, 0
-    je      WrapOn
-
-    ; wrap off: use a very wide target line
-    xor     eax, eax
-    mov     fWrap, eax
-    push    0FFFFFFFFh
+    xor     fWrap, 1
+    mov     eax, fWrap
+    dec     eax                 ; wrap on: 0, wrap off: -1 (no wrap)
+    push    eax
     push    0
     push    EM_SETTARGETDEVICE
     mov     eax, hEdit
     push    eax
     call    [_imp__SendMessageA@16]
-    ret
 
-    WrapOn:
-        push    1
-        pop     eax
-        mov     fWrap, eax
-        push    0
-        push    0
-        push    EM_SETTARGETDEVICE
-        mov     eax, hEdit
-        push    eax
-        call    [_imp__SendMessageA@16]
-        ret
+    ; H-scrollbar only when wrap is off
+    mov     eax, fWrap
+    xor     eax, 1
+    push    eax
+    push    SB_HORZ
+    push    EM_SHOWSCROLLBAR
+    mov     eax, hEdit
+    push    eax
+    call    [_imp__SendMessageA@16]
+
+    call    UpdateStatus
+    ret
 ToggleWrap endp
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1105,9 +1120,8 @@ PrintDoc endp
 UpdateStatus proc NEAR
     LOCAL cr:CHARRANGE
     LOCAL lnNum:DWORD
-
-    cmp     fStatus, 0
-    je      UpdDone
+    LOCAL pt:POINT
+    LOCAL rc:RECT
 
     ; current caret character index
     lea     eax, cr
@@ -1117,6 +1131,63 @@ UpdateStatus proc NEAR
     mov     edx, hEdit
     push    edx
     call    [_imp__SendMessageA@16]
+
+    ; wrap off: keep caret in the horizontal viewport
+    cmp     fWrap, 0
+    jne     StatusPart
+
+    push    cr.cpMax
+    lea     eax, pt
+    push    eax
+    push    EM_POSFROMCHAR
+    mov     edx, hEdit
+    push    edx
+    call    [_imp__SendMessageA@16]
+
+    lea     eax, rc
+    push    eax
+    push    hEdit
+    call    [_imp__GetClientRect@8]
+
+    mov     ecx, rc.right
+    cmp     ecx, 8
+    jle     StatusPart
+    sub     ecx, 4
+    mov     eax, pt.x
+    test    eax, eax
+    jns     HNotLeft
+    mov     esi, eax            ; caret left of view
+    jmp     HDoScroll
+  HNotLeft:
+    cmp     eax, ecx
+    jl      StatusPart
+    sub     eax, ecx            ; caret right of view
+    mov     esi, eax
+  HDoScroll:
+    lea     eax, pt
+    push    eax
+    push    0
+    push    EM_GETSCROLLPOS
+    mov     edx, hEdit
+    push    edx
+    call    [_imp__SendMessageA@16]
+    mov     eax, pt.x
+    add     eax, esi
+    jns     HSet
+    xor     eax, eax
+  HSet:
+    mov     pt.x, eax
+    lea     eax, pt
+    push    eax
+    push    0
+    push    EM_SETSCROLLPOS
+    mov     edx, hEdit
+    push    edx
+    call    [_imp__SendMessageA@16]
+
+  StatusPart:
+    cmp     fStatus, 0
+    je      UpdDone
 
     ; 0-based line of caret -> 1-based
     push    cr.cpMax
