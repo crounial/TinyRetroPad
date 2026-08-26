@@ -13,44 +13,15 @@
 
 A working, Notepad-style Windows text editor written in x86 assembly.
 
-Compiles with: MASM and the Microsoft linker (`link.exe`).
+Compiles with: Visual Studio MASM (`ml.exe`) and the Microsoft linker (`link.exe`), from an x86 Developer Command Prompt.
 
 TinyRetroPad is a fork of **Dave's Tiny Editor (DTE)** by Matt Power, which is itself an extension of `tiny.asm` [HelloAssembly](https://github.com/PlummersSoftwareLLC/HelloAssembly) by [Dave Plummer](https://github.com/davepl). The original goal was a working windowed text editor in the sub-1KB category; TinyRetroPad keeps that minimalist, size-obsessed spirit while filling out a full Notepad-style menu set (File / Edit / Format / View / Help) on top of it. Older DTE builds used [Crinkler](https://github.com/runestubbe/Crinkler) to compress the EXE; this tree links with the normal MSVC linker instead.
 
 TinyRetroPad is basically a wrapper around the RICHEDIT50W control from the WinAPI. DTE versions 1.0+ used the EDIT control with Crinkler cranked and were built up from tiny.asm, then worked down to 890 bytes with Win Defender quite unhappy. Versions 2.0+ backed Crinkler off a bit and use RICHEDIT to gain cheaper access to Courier font and much larger files; 2.0+ was worked down from 995 to 981 bytes as a bare editor. TinyRetroPad then grows from that 981-byte base by adding real menus and dialogs — Open/Save/Save As, Print/Page Setup, Find/Replace/Go To, Font, Word Wrap, Time/Date, and a Ln/Col status bar. Each addition was kept as cheap as possible; the growth log at the top of [trpad.asm](trpad.asm) records what every feature cost in the old compressed builds.
 
-- MASM version used: Microsoft (R) Macro Assembler Version 14.44.35224.0
+- Assemble and link from a **Visual Studio Developer Command Prompt** (x86 Native Tools, or x64_x86 Cross Tools). `build.bat` uses the 32-bit `ml.exe` and `link.exe` from that environment. If they are not on PATH, it looks them up with `vswhere`.
 
-- MASM can vary depending on version. If you experience:
-
-  ```console
-  C:\masm32\include\winextra.inc(11052) : error A2026:constant expected
-  C:\masm32\include\winextra.inc(11053) : error A2026:constant expected
-  ```
-
-  In masm32\include\winextra.inc change:
-
-  ```assembly
-      STD_ALERT struct
-          alrt_timestamp dd ?
-          alrt_eventname WCHAR  [EVLEN + 1] dup(?)
-          alrt_servicename WCHAR [SNLEN + 1] dup(?)
-      STD_ALERT ends
-  ```
-
-  to:
-
-  ```assembly
-      STD_ALERT struct
-          alrt_timestamp dd ?
-          alrt_eventname WCHAR  (EVLEN + 1) dup(?)
-          alrt_servicename WCHAR (SNLEN + 1) dup(?)
-      STD_ALERT ends
-  ```
-
-  The brackets on lines 13,14 were changed to parens.
-
-- `build.bat` needs MASM (`ml.exe`) and the 32-bit MSVC linker (`link.exe`). If `link` is not on PATH, the script looks it up with `vswhere`. It also picks the newest Windows 10 SDK `um\x86` library directory under `C:\Program Files (x86)\Windows Kits\10\Lib\`.
+- `build.bat` also picks the newest Windows 10 SDK `um\x86` library directory under `C:\Program Files (x86)\Windows Kits\10\Lib\`.
 
 ## Contents
 
@@ -65,6 +36,7 @@ TinyRetroPad is basically a wrapper around the RICHEDIT50W control from the WinA
 | `DRAG ME ONTO DTE.txt` | How to use the editor. |
 | `DTE ABOUT.txt` | Explains some design decisions. |
 | `trpad.asm` | The program. TinyRetroPad, forked from DTE 2.0.9 |
+| `windows.inc` | Minimal Win32 constants and structs used by `trpad.asm`. |
 | `LICENSE.TXT` | Usage permissions (Apache License 2.0). |
 
 ## Building the menus and Notepad features

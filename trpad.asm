@@ -52,12 +52,7 @@ FEAT_DARKMODE    = 0       ; View > Dark Mode (default OFF)
 
 ; Include files - headers and libs that we need for
 ; calling the system dlls like user32, kernel32, etc
-include windows.inc        ; Main windows header file (akin to Windows.h in C)
-include user32.inc         ; Windows, controls, etc
-include kernel32.inc       ; Handles, modules, paths, etc
-;include gdi32.inc         ; Removed because no GDI used for editor
-                           ; Rich Edit font is set without GDI
-                           ; using EM_SETCHARFORMAT
+include windows.inc        ; Win32 constants/structs (project-local)
 
 WindowWidth         equ 800        ; window startup size
 WindowHeight        equ 640
