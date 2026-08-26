@@ -37,7 +37,7 @@
 ; Compiler directives and includes:
  
 .386                       ; Full 80386 instruction set and mode
-.model flat, stdcall       ; All 32-bit and later apps are flat. Used to include "tiny, etc"
+.model flat, stdcall       ; All 32-bit and later apps are flat
 option casemap:none        ; Preserve the case of system identifiers but not our own, more or less
 
 ; =====================  FEATURE MENU  =====================
@@ -167,82 +167,87 @@ DARK_FG          equ 00DCDCDCh    ; light text on dark
 IDM_VIEW_DARK    equ 0E232h       ; View > Dark Mode command id
 ENDIF
 
-.DATA
-
-EXTERN _imp__CreateWindowExA@48    :PTR ; create main window / EDIT control
-EXTERN _imp__GetModuleHandleA@4    :PTR ; get HINSTANCE
-EXTERN _imp__LoadLibraryA@4        :PTR ; load modern Rich Edit DLL
-EXTERN _imp__RegisterClassA@4      :PTR ; rgstr wndw class (was RegisterClassExA@4)
-EXTERN _imp__GetMessageA@16        :PTR ; message loop get
-EXTERN _imp__TranslateMessage@4    :PTR ; translate keys
-EXTERN _imp__DispatchMessageA@4    :PTR ; dispatch to WndProc
-EXTERN _imp__PostQuitMessage@4     :PTR ; exit message loop
-EXTERN _imp__DefWindowProcA@16     :PTR ; default window handling
-EXTERN _imp__SetWindowPos@28       :PTR ; resize EDIT control
-EXTERN _imp__GetCommandLineA@0     :PTR ; get startup file path
-EXTERN _imp__CreateFileA@28        :PTR ; open file (read/write)
-EXTERN _imp__GetFileSize@8         :PTR ; get file size
-EXTERN _imp__GlobalAlloc@8         :PTR ; allocate buffer
-EXTERN _imp__GlobalFree@4          :PTR ; free buffer
-EXTERN _imp__ReadFile@20           :PTR ; read file into EDIT
-EXTERN _imp__WriteFile@20          :PTR ; save EDIT to file
-EXTERN _imp__CloseHandle@4         :PTR ; close file handle
-EXTERN _imp__SetWindowTextA@8      :PTR ; set title / EDIT text
-EXTERN _imp__GetSystemMenu@8       :PTR ; get system menu
-EXTERN _imp__AppendMenuA@16        :PTR ; add Save menu item
-EXTERN _imp__CreateMenu@0          :PTR ; create main menu bar
-EXTERN _imp__CreatePopupMenu@0     :PTR ; create each drop-down menu
-EXTERN _imp__SetMenu@8             :PTR ; attach menu bar to main window
-EXTERN _imp__DestroyWindow@4       :PTR ; close main window
-EXTERN _imp__GetOpenFileNameA@4    :PTR ; common file open dialog
-EXTERN _imp__GetSaveFileNameA@4    :PTR ; common file save dialog
-EXTERN _imp__GetLocalTime@4        :PTR ; current local time
-EXTERN _imp__GetDateFormatA@24     :PTR ; date formatting
-EXTERN _imp__GetTimeFormatA@24     :PTR ; time formatting
-EXTERN _imp__MessageBoxA@16        :PTR ; simple About dialog
-EXTERN _imp__TrackPopupMenu@28     :PTR ; show context popup menu
-EXTERN _imp__DestroyMenu@4         :PTR ; free a menu handle
-EXTERN _imp__GetMessagePos@0       :PTR ; screen coords of last msg
-EXTERN _imp__GetKeyState@4         :PTR ; shortcut modifier state
-EXTERN _imp__SendMessageA@16       :PTR ; talk to EDIT control
-EXTERN _imp__ChooseFontW@4         :PTR ; common font picker dialog
-EXTERN _imp__FindTextA@4           :PTR ; common Find dialog
-EXTERN _imp__ReplaceTextA@4        :PTR ; common Replace dialog
-EXTERN _imp__RegisterWindowMessageA@4 :PTR ; FINDMSGSTRING message id
-EXTERN _imp__IsDialogMessageA@8    :PTR ; route keys to find dialog
-EXTERN _imp__PrintDlgA@4           :PTR ; common Print dialog (returns DC)
-EXTERN _imp__StartDocA@8           :PTR ; begin print job
-EXTERN _imp__StartPage@4           :PTR ; begin a printed page
-EXTERN _imp__EndPage@4             :PTR ; finish a printed page
-EXTERN _imp__EndDoc@4              :PTR ; finish print job
-EXTERN _imp__GetDeviceCaps@8       :PTR ; printer resolution/size
-EXTERN _imp__DeleteDC@4            :PTR ; release printer DC
-EXTERN _imp__ShowWindow@8          :PTR ; show/hide status bar
-EXTERN _imp__GetClientRect@8       :PTR ; client size for relayout
-EXTERN _imp__wsprintfA            :PTR ; format Ln/Col string
-EXTERN _imp__ShellExecuteA@24      :PTR ; open help URL in browser
-EXTERN _imp__PageSetupDlgA@4       :PTR ; common Page Setup dialog
-EXTERN _imp__DialogBoxIndirectParamA@20 :PTR ; in-memory Go To dialog
-EXTERN _imp__GetDlgItemInt@16      :PTR ; read Go To line number
-EXTERN _imp__EndDialog@8           :PTR ; close Go To dialog
-EXTERN _imp__SetFocus@4            :PTR ; focus edit control after commands
-EXTERN _imp__ExitProcess@4         :PTR ; terminate process cleanly
+includelib kernel32.lib
+includelib user32.lib
+includelib shell32.lib
+includelib comdlg32.lib
+includelib gdi32.lib
+CreateWindowExA PROTO :DWORD, :DWORD, :DWORD, :DWORD, :DWORD, :DWORD, :DWORD, :DWORD, :DWORD, :DWORD, :DWORD, :DWORD ; create main window / EDIT control
+GetModuleHandleA PROTO :DWORD ; get HINSTANCE
+LoadLibraryA PROTO :DWORD ; load modern Rich Edit DLL
+RegisterClassA PROTO :DWORD ; rgstr wndw class (was RegisterClassExA@4)
+GetMessageA PROTO :DWORD, :DWORD, :DWORD, :DWORD ; message loop get
+TranslateMessage PROTO :DWORD ; translate keys
+DispatchMessageA PROTO :DWORD ; dispatch to WndProc
+PostQuitMessage PROTO :DWORD ; exit message loop
+DefWindowProcA PROTO :DWORD, :DWORD, :DWORD, :DWORD ; default window handling
+SetWindowPos PROTO :DWORD, :DWORD, :DWORD, :DWORD, :DWORD, :DWORD, :DWORD ; resize EDIT control
+GetCommandLineA PROTO ; get startup file path
+CreateFileA PROTO :DWORD, :DWORD, :DWORD, :DWORD, :DWORD, :DWORD, :DWORD ; open file (read/write)
+GetFileSize PROTO :DWORD, :DWORD ; get file size
+GlobalAlloc PROTO :DWORD, :DWORD ; allocate buffer
+GlobalFree PROTO :DWORD ; free buffer
+ReadFile PROTO :DWORD, :DWORD, :DWORD, :DWORD, :DWORD ; read file into EDIT
+WriteFile PROTO :DWORD, :DWORD, :DWORD, :DWORD, :DWORD ; save EDIT to file
+CloseHandle PROTO :DWORD ; close file handle
+SetWindowTextA PROTO :DWORD, :DWORD ; set title / EDIT text
+GetSystemMenu PROTO :DWORD, :DWORD ; get system menu
+AppendMenuA PROTO :DWORD, :DWORD, :DWORD, :DWORD ; add Save menu item
+CreateMenu PROTO ; create main menu bar
+CreatePopupMenu PROTO ; create each drop-down menu
+SetMenu PROTO :DWORD, :DWORD ; attach menu bar to main window
+DestroyWindow PROTO :DWORD ; close main window
+GetOpenFileNameA PROTO :DWORD ; common file open dialog
+GetSaveFileNameA PROTO :DWORD ; common file save dialog
+GetLocalTime PROTO :DWORD ; current local time
+GetDateFormatA PROTO :DWORD, :DWORD, :DWORD, :DWORD, :DWORD, :DWORD ; date formatting
+GetTimeFormatA PROTO :DWORD, :DWORD, :DWORD, :DWORD, :DWORD, :DWORD ; time formatting
+MessageBoxA PROTO :DWORD, :DWORD, :DWORD, :DWORD ; simple About dialog
+TrackPopupMenu PROTO :DWORD, :DWORD, :DWORD, :DWORD, :DWORD, :DWORD, :DWORD ; show context popup menu
+DestroyMenu PROTO :DWORD ; free a menu handle
+GetMessagePos PROTO ; screen coords of last msg
+GetKeyState PROTO :DWORD ; shortcut modifier state
+SendMessageA PROTO :DWORD, :DWORD, :DWORD, :DWORD ; talk to EDIT control
+ChooseFontW PROTO :DWORD ; common font picker dialog
+FindTextA PROTO :DWORD ; common Find dialog
+ReplaceTextA PROTO :DWORD ; common Replace dialog
+RegisterWindowMessageA PROTO :DWORD ; FINDMSGSTRING message id
+IsDialogMessageA PROTO :DWORD, :DWORD ; route keys to find dialog
+PrintDlgA PROTO :DWORD ; common Print dialog (returns DC)
+StartDocA PROTO :DWORD, :DWORD ; begin print job
+StartPage PROTO :DWORD ; begin a printed page
+EndPage PROTO :DWORD ; finish a printed page
+EndDoc PROTO :DWORD ; finish print job
+GetDeviceCaps PROTO :DWORD, :DWORD ; printer resolution/size
+DeleteDC PROTO :DWORD ; release printer DC
+ShowWindow PROTO :DWORD, :DWORD ; show/hide status bar
+GetClientRect PROTO :DWORD, :DWORD ; client size for relayout
+wsprintfA PROTO C :DWORD, :DWORD, :VARARG ; format Ln/Col string
+ShellExecuteA PROTO :DWORD, :DWORD, :DWORD, :DWORD, :DWORD, :DWORD ; open help URL in browser
+PageSetupDlgA PROTO :DWORD ; common Page Setup dialog
+DialogBoxIndirectParamA PROTO :DWORD, :DWORD, :DWORD, :DWORD, :DWORD ; in-memory Go To dialog
+GetDlgItemInt PROTO :DWORD, :DWORD, :DWORD, :DWORD ; read Go To line number
+EndDialog PROTO :DWORD, :DWORD ; close Go To dialog
+SetFocus PROTO :DWORD ; focus edit control after commands
+ExitProcess PROTO :DWORD ; terminate process cleanly
 
 IF FEAT_LINENUMBERS
-EXTERN _imp__BeginPaint@8          :PTR ; begin gutter paint
-EXTERN _imp__EndPaint@8            :PTR ; end gutter paint
-EXTERN _imp__FillRect@12           :PTR ; fill gutter background
-EXTERN _imp__GetSysColorBrush@4    :PTR ; gutter background brush
-EXTERN _imp__InvalidateRect@12     :PTR ; force gutter repaint
-EXTERN _imp__SetBkMode@8           :PTR ; transparent number text
-EXTERN _imp__TextOutA@20           :PTR ; draw the line numbers
+BeginPaint PROTO :DWORD, :DWORD ; begin gutter paint
+EndPaint PROTO :DWORD, :DWORD ; end gutter paint
+FillRect PROTO :DWORD, :DWORD, :DWORD ; fill gutter background
+GetSysColorBrush PROTO :DWORD ; gutter background brush
+InvalidateRect PROTO :DWORD, :DWORD, :DWORD ; force gutter repaint
+SetBkMode PROTO :DWORD, :DWORD ; transparent number text
+TextOutA PROTO :DWORD, :DWORD, :DWORD, :DWORD, :DWORD ; draw the line numbers
 ENDIF
 
 IF FEAT_DARKMODE
-EXTERN _imp__GetMenu@4             :PTR ; menu bar for the check mark
-EXTERN _imp__CheckMenuItem@12      :PTR ; check/uncheck Dark Mode
+GetMenu PROTO :DWORD ; menu bar for the check mark
+CheckMenuItem PROTO :DWORD, :DWORD, :DWORD ; check/uncheck Dark Mode
 ENDIF
 
+
+.DATA
 ClassName   db ".",0                ; save bytes here (seems to work)
 RichDll     db "Msftedit",0         ; Rich Edit DLL (no ext saves those bytes)
 EditClass   db "RICHEDIT50W",0      ; modern Rich Edit control from WinAPI
@@ -446,7 +451,7 @@ ApplyTitle proc NEAR
     push    OFFSET TitleBuf
     mov     eax, hMain
     push    eax
-    call    [_imp__SetWindowTextA@8]
+    call    SetWindowTextA
     ret
 ApplyTitle endp ;end ApplyTitle proc
 
@@ -455,7 +460,7 @@ ApplyTitle endp ;end ApplyTitle proc
 ; if user drops a file on the app to launch   ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ParseStartupFile proc NEAR
-    call    [_imp__GetCommandLineA@0]
+    call    GetCommandLineA
     mov     esi, eax
     test    esi, esi
     je      NoArg
@@ -560,7 +565,7 @@ NewFile proc NEAR
     push    OFFSET EmptyText
     mov     eax, hEdit
     push    eax
-    call    [_imp__SetWindowTextA@8]
+    call    SetWindowTextA
     xor     eax, eax
     mov     fDirty, eax
     call    ApplyTitle
@@ -590,7 +595,7 @@ PickOpenFile proc NEAR
 
     lea     eax, ofn
     push    eax
-    call    [_imp__GetOpenFileNameA@4]
+    call    GetOpenFileNameA
     ret
 PickOpenFile endp
 
@@ -616,7 +621,7 @@ PickSaveFile proc NEAR
 
     lea     eax, ofn
     push    eax
-    call    [_imp__GetSaveFileNameA@4]
+    call    GetSaveFileNameA
     ret
 PickSaveFile endp
 
@@ -637,7 +642,7 @@ MaybeSaveChanges proc NEAR
         push    OFFSET SaveAskText
         mov     eax, hMain
         push    eax
-        call    [_imp__MessageBoxA@16]
+        call    MessageBoxA
 
         cmp     eax, IDCANCEL
         jne     NotCancel
@@ -675,7 +680,7 @@ InsertTimeDate proc NEAR
 
     lea     eax, sysTime
     push    eax
-    call    [_imp__GetLocalTime@4]
+    call    GetLocalTime
 
     push    32
     push    OFFSET DateBuf
@@ -684,7 +689,7 @@ InsertTimeDate proc NEAR
     push    eax                     ; lpDate
     push    DATE_SHORTDATE          ; dwFlags
     push    LOCALE_USER_DEFAULT
-    call    [_imp__GetDateFormatA@24]
+    call    GetDateFormatA
 
     push    32
     push    OFFSET TimeBuf
@@ -693,28 +698,28 @@ InsertTimeDate proc NEAR
     push    eax                     ; lpTime
     push    0                       ; dwFlags
     push    LOCALE_USER_DEFAULT
-    call    [_imp__GetTimeFormatA@24]
+    call    GetTimeFormatA
 
     push    OFFSET DateBuf
     push    TRUE
     push    EM_REPLACESEL
     mov     eax, hEdit
     push    eax
-    call    [_imp__SendMessageA@16]
+    call    SendMessageA
 
     push    OFFSET SpaceText
     push    TRUE
     push    EM_REPLACESEL
     mov     eax, hEdit
     push    eax
-    call    [_imp__SendMessageA@16]
+    call    SendMessageA
 
     push    OFFSET TimeBuf
     push    TRUE
     push    EM_REPLACESEL
     mov     eax, hEdit
     push    eax
-    call    [_imp__SendMessageA@16]
+    call    SendMessageA
 
     ret
 InsertTimeDate endp
@@ -733,7 +738,7 @@ ToggleWrap proc NEAR
     push    EM_SETTARGETDEVICE
     mov     eax, hEdit
     push    eax
-    call    [_imp__SendMessageA@16]
+    call    SendMessageA
 
     ; H-scrollbar only when wrap is off
     mov     eax, fWrap
@@ -743,7 +748,7 @@ ToggleWrap proc NEAR
     push    EM_SHOWSCROLLBAR
     mov     eax, hEdit
     push    eax
-    call    [_imp__SendMessageA@16]
+    call    SendMessageA
 
     call    UpdateStatus
     ret
@@ -775,7 +780,7 @@ ChooseFontDlg proc NEAR
 
     lea     eax, cf
     push    eax
-    call    [_imp__ChooseFontW@4]
+    call    ChooseFontW
     test    eax, eax
     je      FontCancel
 
@@ -826,7 +831,7 @@ ChooseFontDlg proc NEAR
     push    EM_SETCHARFORMAT
     mov     eax, hEdit
     push    eax
-    call    [_imp__SendMessageA@16]
+    call    SendMessageA
 
   FontCancel:
     ret
@@ -866,7 +871,7 @@ DoFindNext proc NEAR
     push    EM_EXGETSEL
     mov     edx, hEdit
     push    edx
-    call    [_imp__SendMessageA@16]
+    call    SendMessageA
 
     ; search from end of selection to end of text
     mov     eax, cr.cpMax
@@ -885,7 +890,7 @@ DoFindNext proc NEAR
     push    EM_FINDTEXTEXA
     mov     edx, hEdit
     push    edx
-    call    [_imp__SendMessageA@16]
+    call    SendMessageA
 
     cmp     eax, -1
     je      FindMiss
@@ -897,14 +902,14 @@ DoFindNext proc NEAR
     push    EM_EXSETSEL
     mov     edx, hEdit
     push    edx
-    call    [_imp__SendMessageA@16]
+    call    SendMessageA
 
     push    0
     push    0
     push    EM_SCROLLCARET
     mov     edx, hEdit
     push    edx
-    call    [_imp__SendMessageA@16]
+    call    SendMessageA
 
     push    1
     pop     eax
@@ -924,7 +929,7 @@ DoReplaceOne proc NEAR
     push    EM_REPLACESEL
     mov     eax, hEdit
     push    eax
-    call    [_imp__SendMessageA@16]
+    call    SendMessageA
     call    DoFindNext
     ret
 DoReplaceOne endp
@@ -944,7 +949,7 @@ DoReplaceAll proc NEAR
     push    EM_EXSETSEL
     mov     edx, hEdit
     push    edx
-    call    [_imp__SendMessageA@16]
+    call    SendMessageA
 
   RepLoop:
     call    DoFindNext
@@ -955,7 +960,7 @@ DoReplaceAll proc NEAR
     push    EM_REPLACESEL
     mov     edx, hEdit
     push    edx
-    call    [_imp__SendMessageA@16]
+    call    SendMessageA
     jmp     RepLoop
 
   RepDone:
@@ -1007,7 +1012,7 @@ PrintDoc proc NEAR
     mov     pd.Flags, PD_RETURNDC or PD_NOPAGENUMS or PD_NOSELECTION
     lea     eax, pd
     push    eax
-    call    [_imp__PrintDlgA@4]
+    call    PrintDlgA
     test    eax, eax
     je      PrintCancel
     mov     eax, pd.hDC
@@ -1023,7 +1028,7 @@ PrintDoc proc NEAR
     lea     eax, docInf
     push    eax
     push    hPrnDC
-    call    [_imp__StartDocA@8]
+    call    StartDocA
 
     ; prepare FORMATRANGE
     xor     eax, eax
@@ -1037,11 +1042,11 @@ PrintDoc proc NEAR
     ; page width in twips = HORZRES * 1440 / LOGPIXELSX
     push    HORZRES
     push    hPrnDC
-    call    [_imp__GetDeviceCaps@8]
+    call    GetDeviceCaps
     mov     esi, eax
     push    LOGPIXELSX
     push    hPrnDC
-    call    [_imp__GetDeviceCaps@8]
+    call    GetDeviceCaps
     mov     ecx, eax
     mov     eax, esi
     imul    eax, 1440
@@ -1053,11 +1058,11 @@ PrintDoc proc NEAR
     ; page height in twips = VERTRES * 1440 / LOGPIXELSY
     push    VERTRES
     push    hPrnDC
-    call    [_imp__GetDeviceCaps@8]
+    call    GetDeviceCaps
     mov     esi, eax
     push    LOGPIXELSY
     push    hPrnDC
-    call    [_imp__GetDeviceCaps@8]
+    call    GetDeviceCaps
     mov     ecx, eax
     mov     eax, esi
     imul    eax, 1440
@@ -1072,14 +1077,14 @@ PrintDoc proc NEAR
     push    WM_GETTEXTLENGTH
     mov     eax, hEdit
     push    eax
-    call    [_imp__SendMessageA@16]
+    call    SendMessageA
     mov     txtLen, eax
     mov     fmt.chrg.cpMin, 0
     mov     fmt.chrg.cpMax, eax
 
   PrintPage:
     push    hPrnDC
-    call    [_imp__StartPage@4]
+    call    StartPage
 
     lea     eax, fmt
     push    eax
@@ -1087,12 +1092,12 @@ PrintDoc proc NEAR
     push    EM_FORMATRANGE
     mov     edx, hEdit
     push    edx
-    call    [_imp__SendMessageA@16]
+    call    SendMessageA
     mov     fmt.chrg.cpMin, eax     ; next page starts here
     push    eax
 
     push    hPrnDC
-    call    [_imp__EndPage@4]
+    call    EndPage
 
     pop     eax
     cmp     eax, txtLen
@@ -1104,11 +1109,11 @@ PrintDoc proc NEAR
     push    EM_FORMATRANGE
     mov     edx, hEdit
     push    edx
-    call    [_imp__SendMessageA@16]
+    call    SendMessageA
     push    hPrnDC
-    call    [_imp__EndDoc@4]
+    call    EndDoc
     push    hPrnDC
-    call    [_imp__DeleteDC@4]
+    call    DeleteDC
 
   PrintCancel:
     ret
@@ -1130,7 +1135,7 @@ UpdateStatus proc NEAR
     push    EM_EXGETSEL
     mov     edx, hEdit
     push    edx
-    call    [_imp__SendMessageA@16]
+    call    SendMessageA
 
     ; wrap off: keep caret in the horizontal viewport
     cmp     fWrap, 0
@@ -1142,12 +1147,12 @@ UpdateStatus proc NEAR
     push    EM_POSFROMCHAR
     mov     edx, hEdit
     push    edx
-    call    [_imp__SendMessageA@16]
+    call    SendMessageA
 
     lea     eax, rc
     push    eax
     push    hEdit
-    call    [_imp__GetClientRect@8]
+    call    GetClientRect
 
     mov     ecx, rc.right
     cmp     ecx, 8
@@ -1170,7 +1175,7 @@ UpdateStatus proc NEAR
     push    EM_GETSCROLLPOS
     mov     edx, hEdit
     push    edx
-    call    [_imp__SendMessageA@16]
+    call    SendMessageA
     mov     eax, pt.x
     add     eax, esi
     jns     HSet
@@ -1183,7 +1188,7 @@ UpdateStatus proc NEAR
     push    EM_SETSCROLLPOS
     mov     edx, hEdit
     push    edx
-    call    [_imp__SendMessageA@16]
+    call    SendMessageA
 
   StatusPart:
     cmp     fStatus, 0
@@ -1195,7 +1200,7 @@ UpdateStatus proc NEAR
     push    EM_EXLINEFROMCHAR
     mov     edx, hEdit
     push    edx
-    call    [_imp__SendMessageA@16]
+    call    SendMessageA
     mov     esi, eax
     inc     eax
     mov     lnNum, eax
@@ -1206,7 +1211,7 @@ UpdateStatus proc NEAR
     push    EM_LINEINDEX
     mov     edx, hEdit
     push    edx
-    call    [_imp__SendMessageA@16]
+    call    SendMessageA
 
     ; column = caret - lineStart + 1
     mov     edx, cr.cpMax
@@ -1218,12 +1223,12 @@ UpdateStatus proc NEAR
     push    lnNum
     push    OFFSET LnColFmt
     push    OFFSET StatusBuf
-    call    [_imp__wsprintfA]
+    call    wsprintfA
     add     esp, 16
     push    OFFSET StatusBuf
     mov     eax, hStatus
     push    eax
-    call    [_imp__SetWindowTextA@8]
+    call    SetWindowTextA
 
   UpdDone:
     ret
@@ -1237,7 +1242,7 @@ RelayoutClient proc NEAR
     lea     eax, rc
     push    eax
     push    hMain
-    call    [_imp__GetClientRect@8]
+    call    GetClientRect
     mov     ecx, rc.right
     and     ecx, 0FFFFh
     mov     eax, rc.bottom
@@ -1247,7 +1252,7 @@ RelayoutClient proc NEAR
     push    0
     push    WM_SIZE
     push    hMain
-    call    [_imp__SendMessageA@16]
+    call    SendMessageA
     ret
 RelayoutClient endp
 
@@ -1267,7 +1272,7 @@ LnInvalidate proc NEAR hW:DWORD
     lea     eax, rc
     push    eax
     push    hW
-    call    [_imp__InvalidateRect@12]
+    call    InvalidateRect
   LnInvDone:
     ret
 LnInvalidate endp
@@ -1287,7 +1292,7 @@ PageSetup proc NEAR
     mov     psd.hwndOwner, eax
     lea     eax, psd
     push    eax
-    call    [_imp__PageSetupDlgA@4]
+    call    PageSetupDlgA
     ret
 PageSetup endp
 
@@ -1308,17 +1313,17 @@ GoToProc proc hDlg:DWORD, uMsg:DWORD, wParam:DWORD, lParam:DWORD
     jne     GpFalse
     push    0
     push    hDlg
-    call    [_imp__EndDialog@8]
+    call    EndDialog
     jmp     GpTrue
   GpOk:
     push    FALSE
     push    0
     push    IDC_GOEDIT
     push    hDlg
-    call    [_imp__GetDlgItemInt@16]
+    call    GetDlgItemInt
     push    eax
     push    hDlg
-    call    [_imp__EndDialog@8]
+    call    EndDialog
   GpTrue:
     push    1
     pop     eax
@@ -1339,7 +1344,7 @@ GoToDlg proc NEAR
     push    hMain
     push    OFFSET GoToTmpl
     push    hInst
-    call    [_imp__DialogBoxIndirectParamA@20]
+    call    DialogBoxIndirectParamA
 
     ; eax = 1-based line, 0 = cancel/invalid
     test    eax, eax
@@ -1352,7 +1357,7 @@ GoToDlg proc NEAR
     push    EM_LINEINDEX
     mov     edx, hEdit
     push    edx
-    call    [_imp__SendMessageA@16]
+    call    SendMessageA
     cmp     eax, -1
     je      GoDone
 
@@ -1365,18 +1370,18 @@ GoToDlg proc NEAR
     push    EM_EXSETSEL
     mov     edx, hEdit
     push    edx
-    call    [_imp__SendMessageA@16]
+    call    SendMessageA
     push    0
     push    0
     push    EM_SCROLLCARET
     mov     edx, hEdit
     push    edx
-    call    [_imp__SendMessageA@16]
+    call    SendMessageA
 
     ; activate the edit control so the caret shows
     mov     eax, hEdit
     push    eax
-    call    [_imp__SetFocus@4]
+    call    SetFocus
 
   GoDone:
     ret
@@ -1388,7 +1393,7 @@ GoToDlg endp
 ShowContextMenu proc NEAR hWndOwner:DWORD
     LOCAL hCtx:DWORD
 
-    call    [_imp__CreatePopupMenu@0]
+    call    CreatePopupMenu
     mov     hCtx, eax
     push    OFFSET MUndo
     push    IDM_EDIT_UNDO
@@ -1420,7 +1425,7 @@ ShowContextMenu proc NEAR hWndOwner:DWORD
     push    IDM_EDIT_SELALL
     push    hCtx
     call    AppendEnabled
-    call    [_imp__GetMessagePos@0]
+    call    GetMessagePos
     movzx   ecx, ax          ; x = LOWORD
     shr     eax, 16          ; y = HIWORD
     push    NULL             ; prcRect
@@ -1430,9 +1435,9 @@ ShowContextMenu proc NEAR hWndOwner:DWORD
     push    ecx              ; x
     push    0                ; uFlags
     push    hCtx
-    call    [_imp__TrackPopupMenu@28]
+    call    TrackPopupMenu
     push    hCtx
-    call    [_imp__DestroyMenu@4]
+    call    DestroyMenu
     ret
 ShowContextMenu endp
 
@@ -1447,7 +1452,7 @@ AppendDisabled proc NEAR hMenu:DWORD, pText:DWORD
     push    0
     push    MF_STRING or MF_GRAYED
     push    hMenu
-    call    [_imp__AppendMenuA@16]
+    call    AppendMenuA
     ret
 
     AddSep:
@@ -1455,7 +1460,7 @@ AppendDisabled proc NEAR hMenu:DWORD, pText:DWORD
         push    0
         push    MF_SEPARATOR
         push    hMenu
-        call    [_imp__AppendMenuA@16]
+        call    AppendMenuA
         ret
 AppendDisabled endp
 
@@ -1467,7 +1472,7 @@ AppendEnabled proc NEAR hMenu:DWORD, uID:DWORD, pText:DWORD
     push    uID
     push    MF_STRING
     push    hMenu
-    call    [_imp__AppendMenuA@16]
+    call    AppendMenuA
     ret
 AppendEnabled endp
 
@@ -1478,13 +1483,13 @@ CreateNotepadMenus proc NEAR hWnd:DWORD
     LOCAL   hMenuBar:DWORD
     LOCAL   hPopup:DWORD
 
-    call    [_imp__CreateMenu@0]
+    call    CreateMenu
     test    eax, eax
     je      CreateDone
     mov     hMenuBar, eax
 
     ; File
-    call    [_imp__CreatePopupMenu@0]
+    call    CreatePopupMenu
     mov     hPopup, eax
     push    OFFSET MNew
     push    IDM_FILE_NEW
@@ -1526,10 +1531,10 @@ CreateNotepadMenus proc NEAR hWnd:DWORD
     push    MF_POPUP or MF_STRING
     mov     eax, hMenuBar
     push    eax
-    call    [_imp__AppendMenuA@16]
+    call    AppendMenuA
 
     ; Edit
-    call    [_imp__CreatePopupMenu@0]
+    call    CreatePopupMenu
     mov     hPopup, eax
     push    OFFSET MUndo
     push    IDM_EDIT_UNDO
@@ -1590,10 +1595,10 @@ CreateNotepadMenus proc NEAR hWnd:DWORD
     push    MF_POPUP or MF_STRING
     mov     eax, hMenuBar
     push    eax
-    call    [_imp__AppendMenuA@16]
+    call    AppendMenuA
 
     ; Format
-    call    [_imp__CreatePopupMenu@0]
+    call    CreatePopupMenu
     mov     hPopup, eax
     push    OFFSET MWordWrap
     push    IDM_FMT_WRAP
@@ -1609,10 +1614,10 @@ CreateNotepadMenus proc NEAR hWnd:DWORD
     push    MF_POPUP or MF_STRING
     mov     eax, hMenuBar
     push    eax
-    call    [_imp__AppendMenuA@16]
+    call    AppendMenuA
 
     ; View
-    call    [_imp__CreatePopupMenu@0]
+    call    CreatePopupMenu
     mov     hPopup, eax
     push    OFFSET MStatusBar
     push    IDM_VIEW_STATUS
@@ -1636,10 +1641,10 @@ ENDIF
     push    MF_POPUP or MF_STRING
     mov     eax, hMenuBar
     push    eax
-    call    [_imp__AppendMenuA@16]
+    call    AppendMenuA
 
     ; Help
-    call    [_imp__CreatePopupMenu@0]
+    call    CreatePopupMenu
     mov     hPopup, eax
     push    OFFSET MViewHelp
     push    IDM_HELP_VIEWHELP
@@ -1658,12 +1663,12 @@ ENDIF
     push    MF_POPUP or MF_STRING
     mov     eax, hMenuBar
     push    eax
-    call    [_imp__AppendMenuA@16]
+    call    AppendMenuA
 
         mov     eax, hMenuBar
         push    eax
         push    hWnd
-        call    [_imp__SetMenu@8]
+        call    SetMenu
 
     CreateDone:
         ret
@@ -1685,7 +1690,7 @@ LoadStartupFile proc NEAR
     push    FILE_SHARE_READ
     push    GENERIC_READ
     push    OFFSET CmdFile
-    call    [_imp__CreateFileA@28]
+    call    CreateFileA
 
     ; if opened ok save handle / else skip load
     cmp     eax, INVALID_HANDLE_VALUE
@@ -1695,7 +1700,7 @@ LoadStartupFile proc NEAR
     ; get file size (bytes)
     push    NULL
     push    eax
-    call    [_imp__GetFileSize@8]
+    call    GetFileSize
     
     ; INVALID_HANDLE_VALUE file open failed
     cmp     eax, 0FFFFFFFFh 
@@ -1706,7 +1711,7 @@ LoadStartupFile proc NEAR
     inc     eax
     push    eax
     push    GMEM_FIXED
-    call    [_imp__GlobalAlloc@8]
+    call    GlobalAlloc
     
     ; if alloc ok, save ptr; else close file
     test    eax, eax
@@ -1724,7 +1729,7 @@ LoadStartupFile proc NEAR
     push    eax
     mov     eax, hFile
     push    eax
-    call    [_imp__ReadFile@20]
+    call    ReadFile
 
     ; if read failed, cleanup and abort
     test    eax, eax
@@ -1739,19 +1744,19 @@ LoadStartupFile proc NEAR
     push    eax
     mov     eax, hEdit
     push    eax
-    call    [_imp__SetWindowTextA@8]
+    call    SetWindowTextA
 
     ; free loaded file buffer
     FreeLoadBuffer:
         mov     eax, hMem
         push    eax
-        call    [_imp__GlobalFree@4]
+        call    GlobalFree
 
     ; close file handle only (if no buffer to free)
     CloseOnly:
         mov     eax, hFile
         push    eax
-        call    [_imp__CloseHandle@4]
+        call    CloseHandle
 
     LoadDone:
         ret
@@ -1771,14 +1776,14 @@ SaveFile proc    NEAR
     push    0
     push    WM_GETTEXTLENGTH
     push    eax
-    call    [_imp__SendMessageA@16]
+    call    SendMessageA
 
     ; save size and alloc buffer (+1)
     mov     dwSize, eax
     inc     eax
     push    eax
     push    GMEM_FIXED
-    call    [_imp__GlobalAlloc@8]
+    call    GlobalAlloc
 
     ; if alloc ok, save ptr / else abort save
     test    eax, eax
@@ -1793,7 +1798,7 @@ SaveFile proc    NEAR
     push    WM_GETTEXT
     mov     eax, hEdit
     push    eax
-    call    [_imp__SendMessageA@16]
+    call    SendMessageA
 
     ; open CmdFile for write (overwrite)
     push    NULL
@@ -1803,7 +1808,7 @@ SaveFile proc    NEAR
     push    0
     push    GENERIC_WRITE
     push    OFFSET CmdFile
-    call    [_imp__CreateFileA@28]
+    call    CreateFileA
 
     ; if open ok, save handle; else free buffer
     cmp     eax, INVALID_HANDLE_VALUE
@@ -1820,12 +1825,12 @@ SaveFile proc    NEAR
     push    eax
     mov     eax, hFile
     push    eax
-    call    [_imp__WriteFile@20]
+    call    WriteFile
 
     ; close file
     mov     eax, hFile
     push    eax
-    call    [_imp__CloseHandle@4]
+    call    CloseHandle
 
     ; clear dirty flag and update title
     xor     eax, eax
@@ -1836,7 +1841,7 @@ SaveFile proc    NEAR
     SaveFree:
         mov     eax, hMem
         push    eax
-        call    [_imp__GlobalFree@4]
+        call    GlobalFree
 
     SaveDone:
         ret
@@ -1853,17 +1858,17 @@ MainEntry proc NEAR
 
     ; get program HINSTANCE
     push    NULL
-    call    [_imp__GetModuleHandleA@4]
+    call    GetModuleHandleA
     mov     hInstance, eax
     mov     hInst, eax
 
     ; load modern Rich Edit control library
     push    OFFSET RichDll
-    call    [_imp__LoadLibraryA@4]
+    call    LoadLibraryA
 
     ; register the common Find/Replace notification message
     push    OFFSET FindMsgStr
-    call    [_imp__RegisterWindowMessageA@4]
+    call    RegisterWindowMessageA
     mov     uFindMsg, eax
 
 
@@ -1884,7 +1889,7 @@ MainEntry proc NEAR
     ; register window class
     lea     eax, wc
     push    eax
-    call    [_imp__RegisterClassA@4]
+    call    RegisterClassA
 
     ; parse command line for startup file
     call    ParseStartupFile
@@ -1902,7 +1907,7 @@ MainEntry proc NEAR
     push    OFFSET ClassName
     push    OFFSET ClassName
     push    0
-    call    [_imp__CreateWindowExA@48]
+    call    CreateWindowExA
 
     ; if create window ok, save hwnd / else exit
     test    eax, eax
@@ -1924,7 +1929,7 @@ MainEntry proc NEAR
         push    NULL
         lea     eax, msg
         push    eax
-        call    [_imp__GetMessageA@16]
+        call    GetMessageA
 
         ; message WM_QUIT: exit loop
         test    eax, eax
@@ -1937,7 +1942,7 @@ MainEntry proc NEAR
         lea     edx, msg
         push    edx
         push    eax
-        call    [_imp__IsDialogMessageA@8]
+        call    IsDialogMessageA
         test    eax, eax
         jne     MessageLoop
       NotFindDlg:
@@ -1952,7 +1957,7 @@ MainEntry proc NEAR
         cmp     eax, VK_F5
         je      AccelTime
         push    VK_CONTROL
-        call    [_imp__GetKeyState@4]
+        call    GetKeyState
         test    ah, 80h
         je      NotAppAccel
         mov     eax, msg.wParam
@@ -1980,7 +1985,7 @@ MainEntry proc NEAR
       AccelSave:
         mov     ecx, IDM_SAVE
         push    VK_SHIFT
-        call    [_imp__GetKeyState@4]
+        call    GetKeyState
         test    ah, 80h
         je      SendAppAccel
         mov     ecx, IDM_FILE_SAVEAS
@@ -2007,19 +2012,19 @@ MainEntry proc NEAR
         push    ecx
         push    WM_COMMAND
         push    hMain
-        call    [_imp__SendMessageA@16]
+        call    SendMessageA
         jmp     MessageLoop
       NotAppAccel:
 
         ; translate key input
         lea     eax, msg
         push    eax
-        call    [_imp__TranslateMessage@4]
+        call    TranslateMessage
 
         ; dispatch message to WndProc
         lea     eax, msg
         push    eax
-        call    [_imp__DispatchMessageA@4]
+        call    DispatchMessageA
 
         ; loop for next message
         jmp     MessageLoop
@@ -2031,7 +2036,7 @@ MainEntry proc NEAR
     ; final exit point of the program
     MainRet:
         push    eax
-        call    [_imp__ExitProcess@4]
+        call    ExitProcess
 
 MainEntry endp
 
@@ -2078,7 +2083,7 @@ ENDIF
         push    NULL
         push    OFFSET EditClass ; "RICHEDIT50W"
         push    0
-        call    [_imp__CreateWindowExA@48]
+        call    CreateWindowExA
 
         ; add save command to system menu
         mov     hEdit, eax ; save EDIT HWND
@@ -2092,7 +2097,7 @@ ENDIF
         push    0
         push    EM_SETEVENTMASK
         push    eax
-        call    [_imp__SendMessageA@16]
+        call    SendMessageA
 
         ; raise Rich Edit user editing limit
         push    07FFFFFFEh
@@ -2100,16 +2105,16 @@ ENDIF
         push    EM_EXLIMITTEXT
         mov     eax, hEdit
         push    eax
-        call    [_imp__SendMessageA@16]
+        call    SendMessageA
 
         push    FALSE
         push    hWnd
-        call    [_imp__GetSystemMenu@8]
+        call    GetSystemMenu
         push    OFFSET SaveText
         push    IDM_SAVE
         push    MF_STRING
         push    eax
-        call    [_imp__AppendMenuA@16]
+        call    AppendMenuA
 
         ; build Notepad-style menu bar from compact tables
         push    hWnd
@@ -2128,7 +2133,7 @@ ENDIF
         push    OFFSET StatusBuf
         push    OFFSET StaticClass
         push    WS_EX_STATICEDGE
-        call    [_imp__CreateWindowExA@48]
+        call    CreateWindowExA
         mov     hStatus, eax
 
         ; show initial Ln/Col in the status bar
@@ -2145,37 +2150,37 @@ IF FEAT_LINENUMBERS
         lea     eax, ps
         push    eax
         push    hWnd
-        call    [_imp__BeginPaint@8]
+        call    BeginPaint
         mov     ebx, eax                 ; ebx = paint HDC
         lea     eax, rc
         push    eax
         push    hWnd
-        call    [_imp__GetClientRect@8]
+        call    GetClientRect
         mov     eax, LN_MARGIN_W
         mov     rc.right, eax            ; strip = {0,0,MARGIN,clientH}
         push    COLOR_BTNFACE
-        call    [_imp__GetSysColorBrush@4]
+        call    GetSysColorBrush
         push    eax
         lea     eax, rc
         push    eax
         push    ebx
-        call    [_imp__FillRect@12]
+        call    FillRect
         push    TRANSPARENT
         push    ebx
-        call    [_imp__SetBkMode@8]
+        call    SetBkMode
         push    0
         push    0
         push    EM_GETFIRSTVISIBLELINE
         mov     eax, hEdit
         push    eax
-        call    [_imp__SendMessageA@16]
+        call    SendMessageA
         mov     esi, eax                 ; esi = current line index
         push    0
         push    0
         push    EM_GETLINECOUNT
         mov     eax, hEdit
         push    eax
-        call    [_imp__SendMessageA@16]
+        call    SendMessageA
         mov     edi, eax                 ; edi = total line count
       LnLoop:
         cmp     esi, edi
@@ -2185,14 +2190,14 @@ IF FEAT_LINENUMBERS
         push    EM_LINEINDEX
         mov     eax, hEdit
         push    eax
-        call    [_imp__SendMessageA@16] ; eax = first char of line
+        call    SendMessageA ; eax = first char of line
         push    eax
         lea     eax, pt
         push    eax
         push    EM_POSFROMCHAR
         mov     eax, hEdit
         push    eax
-        call    [_imp__SendMessageA@16] ; pt.y = line top (client px)
+        call    SendMessageA ; pt.y = line top (client px)
         mov     eax, pt.y
         cmp     eax, rc.bottom
         jg      LnPaintEnd
@@ -2202,7 +2207,7 @@ IF FEAT_LINENUMBERS
         push    OFFSET LnNumFmt
         lea     eax, nbuf
         push    eax
-        call    [_imp__wsprintfA]
+        call    wsprintfA
         add     esp, 12
         push    eax                      ; cch = digits written
         lea     eax, nbuf
@@ -2210,14 +2215,14 @@ IF FEAT_LINENUMBERS
         push    pt.y
         push    LN_PAD
         push    ebx
-        call    [_imp__TextOutA@20]
+        call    TextOutA
         inc     esi
         jmp     LnLoop
       LnPaintEnd:
         lea     eax, ps
         push    eax
         push    hWnd
-        call    [_imp__EndPaint@8]
+        call    EndPaint
         xor     eax, eax
         ret
       LnPaintDef:
@@ -2372,7 +2377,7 @@ ENDIF
         test    eax, eax
         je      CommandDone
         push    hWnd
-        call    [_imp__DestroyWindow@4]
+        call    DestroyWindow
         xor     eax, eax
         ret
 
@@ -2382,7 +2387,7 @@ ENDIF
         push    WM_UNDO
         mov     eax, hEdit
         push    eax
-        call    [_imp__SendMessageA@16]
+        call    SendMessageA
         xor     eax, eax
         ret
 
@@ -2392,7 +2397,7 @@ ENDIF
         push    WM_CUT
         mov     eax, hEdit
         push    eax
-        call    [_imp__SendMessageA@16]
+        call    SendMessageA
         xor     eax, eax
         ret
 
@@ -2402,7 +2407,7 @@ ENDIF
         push    WM_COPY
         mov     eax, hEdit
         push    eax
-        call    [_imp__SendMessageA@16]
+        call    SendMessageA
         xor     eax, eax
         ret
 
@@ -2412,7 +2417,7 @@ ENDIF
         push    WM_PASTE
         mov     eax, hEdit
         push    eax
-        call    [_imp__SendMessageA@16]
+        call    SendMessageA
         xor     eax, eax
         ret
 
@@ -2422,27 +2427,27 @@ ENDIF
         push    WM_CLEAR
         mov     eax, hEdit
         push    eax
-        call    [_imp__SendMessageA@16]
+        call    SendMessageA
         xor     eax, eax
         ret
 
     CmdEditSelAll:
         mov     eax, hEdit
         push    eax
-        call    [_imp__SetFocus@4]
+        call    SetFocus
         push    0FFFFFFFFh
         push    0
         push    EM_SETSEL
         mov     eax, hEdit
         push    eax
-        call    [_imp__SendMessageA@16]
+        call    SendMessageA
         xor     eax, eax
         ret
 
     CmdEditTime:
         mov     eax, hEdit
         push    eax
-        call    [_imp__SetFocus@4]
+        call    SetFocus
         call    InsertTimeDate
         xor     eax, eax
         ret
@@ -2451,7 +2456,7 @@ ENDIF
         call    InitFR
         lea     eax, fr
         push    eax
-        call    [_imp__FindTextA@4]
+        call    FindTextA
         mov     hFindDlg, eax
         xor     eax, eax
         ret
@@ -2465,7 +2470,7 @@ ENDIF
         call    InitFR
         lea     eax, fr
         push    eax
-        call    [_imp__ReplaceTextA@4]
+        call    ReplaceTextA
         mov     hFindDlg, eax
         xor     eax, eax
         ret
@@ -2499,7 +2504,7 @@ ENDIF
     StatusApply:
         mov     eax, hStatus
         push    eax
-        call    [_imp__ShowWindow@8]
+        call    ShowWindow
         call    RelayoutClient
         call    UpdateStatus
         xor     eax, eax
@@ -2547,7 +2552,7 @@ IF FEAT_DARKMODE
         push    EM_SETBKGNDCOLOR
         mov     eax, hEdit
         push    eax
-        call    [_imp__SendMessageA@16]
+        call    SendMessageA
         mov     dfmt.crTextColor, DARK_FG
         jmp     DarkApply
 
@@ -2558,7 +2563,7 @@ IF FEAT_DARKMODE
         push    EM_SETBKGNDCOLOR
         mov     eax, hEdit
         push    eax
-        call    [_imp__SendMessageA@16]
+        call    SendMessageA
         mov     dfmt.dwEffects, CFE_AUTOCOLOR
 
     DarkApply:
@@ -2568,7 +2573,7 @@ IF FEAT_DARKMODE
         push    EM_SETCHARFORMAT
         mov     eax, hEdit
         push    eax
-        call    [_imp__SendMessageA@16]
+        call    SendMessageA
 
         ; reflect the new state with a check mark in the View menu
         mov     edx, MF_BYCOMMAND
@@ -2579,9 +2584,9 @@ IF FEAT_DARKMODE
         push    edx                    ; uCheck
         push    IDM_VIEW_DARK          ; uIDCheckItem
         push    hWnd
-        call    [_imp__GetMenu@4]      ; eax = menu bar handle
+        call    GetMenu      ; eax = menu bar handle
         push    eax
-        call    [_imp__CheckMenuItem@12]
+        call    CheckMenuItem
         xor     eax, eax
         ret
 ENDIF
@@ -2591,7 +2596,7 @@ ENDIF
         push    OFFSET AboutCap
         push    OFFSET AboutText
         push    hWnd
-        call    [_imp__MessageBoxA@16]
+        call    MessageBoxA
         xor     eax, eax
         ret
 
@@ -2602,7 +2607,7 @@ ENDIF
         push    OFFSET HelpUrl
         push    OFFSET OpenVerb
         push    0
-        call    [_imp__ShellExecuteA@24]
+        call    ShellExecuteA
         xor     eax, eax
         ret
 
@@ -2667,7 +2672,7 @@ ENDIF
         push    0
         push    NULL
         push    hStatus
-        call    [_imp__SetWindowPos@28]
+        call    SetWindowPos
 
     ; resize EDIT to fill remaining area
     SizeEdit:
@@ -2687,7 +2692,7 @@ IF FEAT_LINENUMBERS
         push    NULL
         mov     eax, hEdit
         push    eax
-        call    [_imp__SetWindowPos@28]
+        call    SetWindowPos
         push    hWnd
         call    LnInvalidate
 ELSE
@@ -2699,7 +2704,7 @@ ELSE
         push    NULL
         mov     eax, hEdit
         push    eax
-        call    [_imp__SetWindowPos@28]
+        call    SetWindowPos
 ENDIF
 
     ; resize handled, return 0
@@ -2718,7 +2723,7 @@ ENDIF
 
         ; post quit message and exit
         push    0
-        call    [_imp__PostQuitMessage@4]
+        call    PostQuitMessage
         xor     eax, eax
         ret
 
@@ -2728,7 +2733,7 @@ ENDIF
         push    wParam
         push    uMsg
         push    hWnd
-        call    [_imp__DefWindowProcA@16]
+        call    DefWindowProcA
         ret
 
 WndProc endp ; end WndProc
