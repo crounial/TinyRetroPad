@@ -258,7 +258,6 @@ fDirty      dd 0                    ; EDIT modified flag
 fWrap       dd 1                    ; word wrap state
 
 UntitledText db "Untitled",0
-NotepadTail  db " - TinyRetroPad",0
 
 MFile       db "&File",0
 MEdit       db "&Edit",0
@@ -422,19 +421,7 @@ BuildTitle proc NEAR
         jmp     CopyLoop
 
     CopyEnd:
-        mov     esi, OFFSET NotepadTail
-
-    ; append " - Notepad"
-    CopyTail:
-        mov     al, [esi]
-        mov     [edi], al
-        inc     edi
-        inc     esi
-        test    al, al
-        jne     CopyTail
-
-    ; done
-    TitleDone:
+        mov     byte ptr [edi], 0
         ret
 BuildTitle endp ; end BuildTitle proc
 
