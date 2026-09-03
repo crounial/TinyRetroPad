@@ -267,7 +267,7 @@ MHelp       db "&Help",0
 
 MNew        db "&New",0
 MOpen       db "&Open...",0
-MSaveMenu   db "&Save",0
+MSaveMenu   db "&Save (Ctrl+S)",0
 MSaveAs     db "Save &As...",0
 MPageSetup  db "Page Set&up...",0
 MPrint      db "&Print...",0
@@ -1965,10 +1965,10 @@ MainEntry proc NEAR
         mov     ecx, IDM_FILE_OPEN
         jmp     SendAppAccel
       AccelSave:
-        mov     ecx, IDM_SAVE
         push    VK_SHIFT
         call    GetKeyState
         test    ah, 80h
+        mov     ecx, IDM_SAVE
         je      SendAppAccel
         mov     ecx, IDM_FILE_SAVEAS
         jmp     SendAppAccel
